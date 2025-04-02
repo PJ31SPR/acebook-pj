@@ -10,7 +10,12 @@ on:
 jobs:
   ci-checks:
     runs-on: ubuntu-latest
-    
+
+    services:
+      mongodb:
+        image: mongo:5.0
+        options: --health-cmd='curl --silent --fail localhost:27017 || exit 1' --health-timeout=30s --health-retries=3
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -19,23 +24,6 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: 22
-
-    # Install MongoDB 5.0
-    - name: Install MongoDB 5.0
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gnupg
-        wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-        echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-        sudo apt-get update
-        sudo apt-get install -y mongodb-org
-
-    # Start MongoDB
-    - name: Start MongoDB
-      run: |
-        sudo systemctl start mongod
-        sudo systemctl enable mongod
-        sleep 10  # Wait for MongoDB to start
 
     - name: Install dependencies
       run: npm install
