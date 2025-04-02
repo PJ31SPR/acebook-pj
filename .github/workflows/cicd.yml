@@ -1,38 +1,55 @@
-name: Acebook CI/CD Workflow
-
-on:
-  push:
-    branches: [ main, test-actions ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
+name: CI
+on: push
 jobs:
-  ci-checks:
+  setup:
+    name: Test Environment Setup
     runs-on: ubuntu-latest
-
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm install
+  lint:
+    name: Run Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm install
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
     services:
       mongodb:
-        image: mongo:5.0
-        options: --health-cmd "curl localhost:27017" --health-timeout=30s --health-retries=3
+        image: mongo:8.0
+        ports:
+          - 27017:27017
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 22
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - name: Install Dependencies
+        run: npm install
+      - name: Start Server and Run Integration Tests
+        run: npx start-server-and-test "npm run start:test" http://localhost:3030 "npm run test:integration"
 
-    - name: Install dependencies
-      run: npm install
 
-    - name: Run tests
-      run: npm test
 
-    - name: Run linting
-      run: npm run lint
 
-    - name: Notify on success
-      if: success()
-      run: echo "CI pipeline completed successfully!"
+
+
