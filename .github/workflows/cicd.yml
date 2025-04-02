@@ -20,6 +20,17 @@ jobs:
       with:
         node-version: 22
 
+    # Install MongoDB
+    - name: Install MongoDB
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mongodb
+
+    # Start MongoDB
+    - name: Start MongoDB
+      run: |
+        sudo systemctl start mongod
+
     - name: Install dependencies
       run: npm install
 
