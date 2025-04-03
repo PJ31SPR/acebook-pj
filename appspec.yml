@@ -13,6 +13,8 @@ hooks:
       timeout: 300
       runas: ec2-user
   ApplicationStart:
+    - location: scripts/start_mongodb.sh
+      timeout: 300
     - location: scripts/start_application.sh
       timeout: 300
       runas: ec2-user
