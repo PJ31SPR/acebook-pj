@@ -1,6 +1,6 @@
 #!/bin/bash
 # Navigate to app directory
-cd /home/ec2-user/app
+cd /home/ec2-user/acebook-node-template
 
 # Install dependencies
 npm install

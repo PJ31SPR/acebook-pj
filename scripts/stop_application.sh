@@ -1,6 +1,6 @@
 #!/bin/bash
 # Navigate to app directory
-cd /home/ec2-user/app || exit
+cd /home/ec2-user/acebook-node-template || exit
 
 # Install PM2 if necessary
 which pm2 || npm install pm2 -g
