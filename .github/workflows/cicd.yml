@@ -10,7 +10,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: 20
           cache: 'npm'
       - name: Install Dependencies
         run: npm install
@@ -23,16 +23,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: 20
           cache: 'npm'
       - name: Install Dependencies
         run: npm install
+      - name: Run Linting
+        run: npm run lint
   test:
     name: Run Tests
     runs-on: ubuntu-latest
     services:
       mongodb:
-        image: mongo:8.0
+        image: mongo:7.0
         ports:
           - 27017:27017
     steps:
@@ -48,8 +50,32 @@ jobs:
       - name: Start Server and Run Integration Tests
         run: npx start-server-and-test "npm run start:test" http://localhost:3030 "npm run test:integration"
 
-
-
-
-
-
+  deploy:
+    needs: [setup, lint, test]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+          
+      - name: Create deployment artifact
+        run: |
+          zip -r deploy.zip . -x "*.git*" -x "node_modules/*"
+          
+      - name: Upload to S3
+        run: aws s3 cp deploy.zip s3://acebook-bucket-pj-2/deploy-${{ github.sha }}.zip
+          
+      - name: Create CodeDeploy deployment
+        run: |
+          aws deploy create-deployment \
+            --application-name acebook-app-pj-2 \
+            --deployment-group-name acebook-deployment-pj-2 \
+            --s3-location bucket=acebook-bucket-pj-2,key=deploy-${{ github.sha }}.zip,bundleType=zip
+    
+  
