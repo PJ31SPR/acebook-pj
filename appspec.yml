@@ -2,14 +2,13 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ec2-user/app
-    overwrite: true
+    destination: /home/ec2-user/acebook-node-template
 permissions:
-  - object: /home/ec2-user/app
+  - object: /home/ec2-user/acebook-node-template
     owner: ec2-user
     group: ec2-user
     mode: 755
-  - object: /home/ec2-user/app/scripts
+  - object: /home/ec2-user/acebook-node-template/scripts
     pattern: "*.sh"
     owner: ec2-user
     group: ec2-user
