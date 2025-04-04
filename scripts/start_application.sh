@@ -1,20 +1,18 @@
 #!/bin/bash
+
 # Navigate to app directory
 cd /home/ec2-user/acebook-node-template
 
-# Install PM2 if not already installed
-npm install pm2 -g
+# Install dependencies if needed
+npm install
 
-# Start application with PM2
-# Stop the app if it's already running
-# pm2 stop app || true
-# pm2 delete app || true
+# Start application in background using PM2
+# First check if PM2 is installed
+if ! command -v pm2 &> /dev/null; then
+  echo "Installing PM2..."
+  npm install -g pm2
+fi
 
-# Start the app
-pm2 start npm -- start
-
-# Save PM2 configuration to survive reboots
-pm2 save
-
-# Log application start
-echo "Application started at $(date)" >> /home/ec2-user/deployment_log.txt
+# Start the application with PM2
+pm2 delete acebook 2>/dev/null || true
+pm2 start ./bin/www --name acebook
